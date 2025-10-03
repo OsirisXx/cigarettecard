@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time We've Spent Together</title>
+    <style>
+        :root {
+            --window-bg: rgba(255, 255, 255, 0.95);
+            --border-color: #ffb6c1;
+            --pink-bg: #ffc0cb;
+            --dark-pink: #ff69b4;
+            --light-pink: #ffb6c1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url('bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'GamePaused', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        @font-face {
+            font-family: 'GamePaused';
+            src: url('GamepauseddemoRegular-RpmY6.otf') format('opentype');
+            font-display: swap;
+        }
+
+        .main-window {
+            background: var(--window-bg);
+            border: 4px solid var(--border-color);
+            box-shadow: 8px 8px 0 #e6a8b8;
+            padding: 30px;
+            width: 600px;
+            border-radius: 20px;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+            transition: all 0.5s ease;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .intro-screen {
+            display: block;
+        }
+
+        .loading-screen {
+            display: none;
+        }
+
+        .time-screen {
+            display: none;
+        }
+
+        .final-screen {
+            display: none;
+        }
+
+        .loading-title {
+            color: var(--dark-pink);
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .loading-subtitle {
+            color: var(--dark-pink);
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--light-pink);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pink-bg), var(--dark-pink));
+            width: 0%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: wave 2s infinite;
+        }
+
+        @keyframes wave {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-fill.animating {
+            animation: fillProgress 3s ease-in-out forwards;
+        }
+
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .time-title {
+            color: var(--dark-pink);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .time-display {
+            background: white;
+            border: 2px solid var(--light-pink);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .time-item {
+            color: var(--dark-pink);
+            font-size: 1.2em;
+            margin: 5px 0;
+            font-weight: bold;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .message-box {
+            position: absolute;
+            background: var(--window-bg);
+            border: 3px solid var(--border-color);
+            box-shadow: 6px 6px 0 #e6a8b8;
+            padding: 15px;
+            border-radius: 15px;
+            color: var(--dark-pink);
+            font-size: 1em;
+            font-weight: bold;
+            max-width: 200px;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease;
+            z-index: 200;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .message-box.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .forever-button {
+            background: var(--dark-pink);
+            border: 3px solid var(--border-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #e6a8b8;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            position: absolute;
+            top: calc(70% + 30px);
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 150;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            14% { transform: translate(-50%, -50%) scale(1.1); }
+            28% { transform: translate(-50%, -50%) scale(1); }
+            42% { transform: translate(-50%, -50%) scale(1.1); }
+            70% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .replay-button {
+            background: var(--dark-pink);
+            border: 3px solid var(--border-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 4px 4px 0 #e6a8b8;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .replay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0 #e6a8b8;
+        }
+
+        .final-title {
+            color: var(--dark-pink);
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .final-subtitle {
+            color: var(--dark-pink);
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .intro-title {
+            color: var(--dark-pink);
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-align: center;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .intro-subtitle {
+            color: var(--dark-pink);
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            text-align: center;
+            font-family: 'GamePaused', monospace;
+        }
+
+        .intro-button {
+            background: var(--dark-pink);
+            border: 3px solid var(--border-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 4px 4px 0 #e6a8b8;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .intro-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0 #e6a8b8;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .popup-window {
+            background: var(--window-bg);
+            border: 4px solid var(--border-color);
+            box-shadow: 8px 8px 0 #e6a8b8;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .popup-title {
+            color: var(--dark-pink);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .popup-message {
+            color: var(--dark-pink);
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .popup-button {
+            background: var(--dark-pink);
+            border: 3px solid var(--border-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #e6a8b8;
+            font-family: 'GamePaused', monospace;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .popup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0 #e6a8b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-window intro-screen" id="introScreen">
+        <div class="intro-title">Times Together</div>
+        <div class="intro-subtitle">Want to see how long we've been together?</div>
+        <div style="text-align: center;">
+            <button class="intro-button" id="yesButton">Yes</button>
+            <button class="intro-button" id="maybeLaterButton">Maybe Later</button>
+        </div>
+    </div>
+
+    <div class="main-window loading-screen" id="loadingScreen">
+        <div class="loading-title">Calculating...</div>
+        <div class="loading-subtitle">Loading your time together...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill">
+                <div class="wave"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-window time-screen" id="timeScreen">
+        <div class="time-title">Time We've Spent Together</div>
+        <div class="time-title" style="font-size: 1.2em; margin-bottom: 15px;">With my Nur Fariena Afiera</div>
+        <div class="time-display">
+            <div class="time-item" id="months">0 Months</div>
+            <div class="time-item" id="days">0 Days</div>
+            <div class="time-item" id="hours">0 Hours</div>
+            <div class="time-item" id="minutes">0 Minutes</div>
+            <div class="time-item" id="seconds">0 Seconds</div>
+        </div>
+    </div>
+
+    <div class="main-window final-screen" id="finalScreen">
+        <div class="final-title">Forever to Go</div>
+        <div class="final-subtitle">Our story continues...</div>
+        <button class="replay-button" id="replayButton">Replay</button>
+    </div>
+
+    <button class="forever-button" id="foreverButton" style="display: none;">Click for Forever</button>
+
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-window">
+            <div class="popup-title">Maybe Next Time!</div>
+            <div class="popup-message">💕</div>
+            <button class="popup-button" id="closePopup">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Calculate date 1 month and 8 days ago at 12am
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate() - 8, 0, 0, 0);
+        const messages = [
+            "Remember when we first met?",
+            "So many memories!",
+            "You are my person!",
+            "Thanks for being here!",
+            "Cherishing every moment!",
+            "Always and forever!",
+            "Our time is priceless!",
+            "You make my heart smile!",
+            "Every day with you is special!",
+            "You're my favorite hello!",
+            "Together is my favorite place!",
+            "You're my sunshine!"
+        ];
+
+        let currentMessageIndex = 0;
+        let messageBoxes = [];
+        let messageInterval;
+        let clickCount = 0;
+
+        function startLoading() {
+            const progressFill = document.getElementById('progressFill');
+            // Reset to 0% first
+            progressFill.style.width = '0%';
+            progressFill.classList.remove('animating');
+            
+            // Start animation after a brief delay
+            setTimeout(() => {
+                progressFill.classList.add('animating');
+            }, 100);
+            
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('timeScreen').style.display = 'block';
+                startTimeCounter();
+                startMessageRotation();
+            }, 3000);
+        }
+
+        function startTimeCounter() {
+            function updateTime() {
+                const now = new Date();
+                const diff = now - startDate;
+                
+                const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+                const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('months').textContent = `${months} ${months === 1 ? 'Month' : 'Months'}`;
+                document.getElementById('days').textContent = `${days} Days`;
+                document.getElementById('hours').textContent = `${hours} Hours`;
+                document.getElementById('minutes').textContent = `${minutes} Minutes`;
+                document.getElementById('seconds').textContent = `${seconds} Seconds`;
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function startMessageRotation() {
+            // Add click event listener to body for creating message boxes
+            document.body.addEventListener('click', function(event) {
+                // Don't create message box if clicking on buttons or existing message boxes
+                if (event.target.tagName === 'BUTTON' || event.target.closest('.message-box')) {
+                    return;
+                }
+                
+                if (currentMessageIndex < messages.length) {
+                    createMessageBox(messages[currentMessageIndex]);
+                    currentMessageIndex++;
+                } else if (currentMessageIndex === messages.length) {
+                    // Show the "Click for Forever" button
+                    document.getElementById('foreverButton').style.display = 'block';
+                    document.body.removeEventListener('click', arguments.callee);
+                }
+            });
+        }
+
+        function createMessageBox(message) {
+            const messageBox = document.createElement('div');
+            messageBox.className = 'message-box';
+            messageBox.textContent = message;
+            
+            // Position closer to the main window
+            const positions = [
+                { top: '25%', left: '20%' },
+                { top: '20%', right: '25%' },
+                { top: '55%', left: '15%' },
+                { top: '65%', right: '20%' },
+                { top: '35%', left: '70%' },
+                { top: '75%', left: '60%' },
+                { top: '15%', left: '45%' },
+                { top: '85%', left: '35%' },
+                { top: '30%', right: '15%' },
+                { top: '70%', right: '30%' },
+                { top: '45%', left: '25%' },
+                { top: '50%', right: '25%' }
+            ];
+            
+            const position = positions[currentMessageIndex % positions.length];
+            Object.assign(messageBox.style, position);
+            
+            document.body.appendChild(messageBox);
+            messageBoxes.push(messageBox);
+            
+            // Show the message box
+            setTimeout(() => {
+                messageBox.classList.add('visible');
+            }, 100);
+            
+            // Remove oldest message box if we have more than 5
+            if (messageBoxes.length > 5) {
+                const oldestBox = messageBoxes.shift();
+                oldestBox.classList.remove('visible');
+                setTimeout(() => {
+                    document.body.removeChild(oldestBox);
+                }, 500);
+            }
+        }
+
+        function showFinalScreen() {
+            document.getElementById('timeScreen').style.display = 'none';
+            document.getElementById('finalScreen').style.display = 'block';
+            document.getElementById('foreverButton').style.display = 'none';
+            
+            // Clear all message boxes
+            messageBoxes.forEach(box => {
+                box.classList.remove('visible');
+                setTimeout(() => {
+                    if (document.body.contains(box)) {
+                        document.body.removeChild(box);
+                    }
+                }, 500);
+            });
+            messageBoxes = [];
+        }
+
+        function replay() {
+            currentMessageIndex = 0;
+            messageBoxes = [];
+            
+            document.getElementById('finalScreen').style.display = 'none';
+            document.getElementById('introScreen').style.display = 'block';
+            document.getElementById('foreverButton').style.display = 'none';
+        }
+
+        function startIntro() {
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'block';
+            startLoading();
+        }
+
+        // Event listeners
+        document.getElementById('foreverButton').addEventListener('click', showFinalScreen);
+        document.getElementById('replayButton').addEventListener('click', replay);
+        document.getElementById('yesButton').addEventListener('click', startIntro);
+        document.getElementById('maybeLaterButton').addEventListener('click', function() {
+            document.getElementById('popupOverlay').style.display = 'flex';
+        });
+
+        document.getElementById('closePopup').addEventListener('click', function() {
+            document.getElementById('popupOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
