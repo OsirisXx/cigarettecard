@@ -409,9 +409,8 @@
     </div>
 
     <script>
-        // Calculate date 1 month and 8 days ago at 12am
-        const now = new Date();
-        const startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate() - 8, 0, 0, 0);
+        // Calculate start date: On Oct 3, 2025 it was 1 month 8 days, so start date was Aug 26, 2025
+        const startDate = new Date(2025, 7, 26, 0, 0, 0); // Month is 0-indexed, so 7 = August
         const messages = [
             "Remember when we first met?",
             "So many memories!",
